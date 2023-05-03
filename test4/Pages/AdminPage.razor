@@ -1,0 +1,66 @@
+﻿@page "/admin"
+
+@attribute [Authorize(Roles = "Admin")]
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms;
+@using Microsoft.AspNetCore.Components;
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.JSInterop;
+@using System.ComponentModel.DataAnnotations;
+@inject UserManager<IdentityUser> UserManager
+@inject IJSRuntime JSRuntime
+
+<EditForm Model="createUserModel" OnValidSubmit="CreateUser">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <InputText id="email" class="form-control" @bind-Value="createUserModel.Email" />
+    </div>
+    <div class="form-group">
+        <label for="password">Password:</label>
+        <InputText id="password" type="password" class="form-control" @bind-Value="createUserModel.Password" />
+    </div>
+    <div class="form-group">
+        <label for="confirmPassword">Confirm Password:</label>
+        <InputText id="confirmPassword" type="password" class="form-control" @bind-Value="createUserModel.ConfirmPassword" />
+    </div>
+    <div class="form-group form-check">
+        <InputCheckbox id="isAdmin" class="form-check-input" @bind-Value="createUserModel.IsAdmin" />
+        <label class="form-check-label" for="isAdmin">Is Admin</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+</EditForm>
+
+@code {
+    private CreateUserModel createUserModel = new CreateUserModel();
+
+    private async Task CreateUser()
+    {
+        var user = new IdentityUser { UserName = createUserModel.Email, Email = createUserModel.Email };
+        var result = await UserManager.CreateAsync(user, createUserModel.Password);
+
+        if (result.Succeeded && createUserModel.IsAdmin)
+        {
+            await UserManager.AddToRoleAsync(user, "Admin");
+        }
+
+        await JSRuntime.InvokeVoidAsync("alert", result.Succeeded ? "User created successfully" : "User creation failed");
+    }
+
+    public class CreateUserModel
+    {
+        [Required, EmailAddress]
+        public string Email { get; set; }
+
+        [Required, MinLength(6)]
+        public string Password { get; set; }
+
+        [Required, Compare(nameof(Password))]
+        public string ConfirmPassword { get; set; }
+
+        public bool IsAdmin { get; set; }
+    }
+}

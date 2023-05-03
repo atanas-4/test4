@@ -1,0 +1,22 @@
+﻿@inherits LayoutComponentBase
+
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-none d-md-block sidebar">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="/admin">
+                        <span class="oi oi-dashboard" aria-hidden="true"></span> Табло
+                    </NavLink>
+                </li>
+                <!-- Тук може да добавите още връзки за навигация в страничната лента -->
+            </ul>
+        </nav>
+        <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            @Body
+        </main>
+    </div>
+</div>
+@code {
+
+}
